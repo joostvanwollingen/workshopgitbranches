@@ -1,3 +1,4 @@
+//Easily maintain workshop Git repositories by automatically creating branches for each assignment
 package main
 
 import (
@@ -60,6 +61,8 @@ func main() {
 	}
 	app.Run(os.Args)
 }
+
+//Create branches based on the folders in ./target
 func createBranches(c *cli.Context) error {
 	assemblyDir := "target"
 	branches := getDirectories(assemblyDir)
@@ -82,15 +85,17 @@ func createBranches(c *cli.Context) error {
 	}
 	return nil
 }
+
 func info(message string) {
 	fmt.Println(message)
-
 }
 
+//Exec.command with arguments, don't bother with output
 func executeCommand(command string,arguments...string){
 	exec.Command(command, arguments...).Output()
 }
 
+//Create a target directory based on the branches from the current directory or argument passed
 func assembleBranches(c *cli.Context) error {
 	sourceDir := defaultOrFirstArg(".", c)
 	sharedDir := path.Join(sourceDir, "shared")
@@ -110,16 +115,22 @@ func assembleBranches(c *cli.Context) error {
 	info(fmt.Sprintf("Assembled %d branches in %s", len(branches), targetDirectory))
 	return nil
 }
+
+//Cleans and recreates the target directory
 func createTargetDirectory() string {
 	targetDirectory := "target"
 	removeDirectory(targetDirectory)
 	createDirectory(targetDirectory)
 	return targetDirectory
 }
+
+//Remove a directory recursively
 func removeDirectory(folder string) {
 	os.RemoveAll(folder)
 }
 
+//Get a slide of os.FileInfo of all directories inside a directory
+//Ignores files
 func getDirectories(folder string) []os.FileInfo {
 	directories := []os.FileInfo{}
 	files, _ := ioutil.ReadDir(folder)
@@ -131,6 +142,7 @@ func getDirectories(folder string) []os.FileInfo {
 	return directories
 }
 
+//Initialize a new workshop directory with optional shared directory
 func doInit(c *cli.Context) error {
 	directory := defaultOrFirstArg(".", c)
 	initDirectory(directory)
@@ -141,11 +153,13 @@ func doInit(c *cli.Context) error {
 	return nil
 }
 
+//Create directory and inside a branches directory
 func initDirectory(directory string) {
 	createDirectory(directory)
 	createDirectory(path.Join(directory, "branches"))
 }
 
+//Create a directory
 func createDirectory(directory string) {
 	err := os.MkdirAll(directory, os.ModePerm)
 	if err != nil {
@@ -153,6 +167,7 @@ func createDirectory(directory string) {
 	}
 }
 
+//Get the defaultValue or the first argument passed on cli
 func defaultOrFirstArg(defaultValue string, firstArgument *cli.Context) string {
 	value := defaultValue
 
@@ -162,6 +177,7 @@ func defaultOrFirstArg(defaultValue string, firstArgument *cli.Context) string {
 	return value
 }
 
+// Retrieved from https://gist.github.com/m4ng0squ4sh/92462b38df26839a3ca324697c8cba04
 // CopyFile copies the contents of the file named src to the file named
 // by dst. The file will be created if it does not already exist. If the
 // destination file exists, all it's contents will be replaced by the contents
@@ -206,6 +222,7 @@ func CopyFile(src, dst string) (err error) {
 	return
 }
 
+// Retrieved from https://gist.github.com/m4ng0squ4sh/92462b38df26839a3ca324697c8cba04
 // CopyDir recursively copies a directory tree, attempting to preserve permissions.
 // Source directory must exist, destination directory must *not* exist.
 // Symlinks are ignored and skipped.
