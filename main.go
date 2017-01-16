@@ -16,7 +16,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "WorkshopGitBranches"
 	app.Version = "1.0"
-	app.HelpName = "wgb"
+	app.HelpName = "workshopgitbranches"
 	app.Usage = "create GIT repositories with branches for each assignment in a workshop"
 	app.Authors = []cli.Author{
 		cli.Author{
@@ -62,6 +62,40 @@ func main() {
 	app.Run(os.Args)
 }
 
+//Initialize a new workshop directory with optional shared directory
+func doInit(c *cli.Context) error {
+	directory := defaultOrFirstArg(".", c)
+	createDirectory(path.Join(directory, "branches"))
+
+	if (c.BoolT("shared-dir")) {
+		createDirectory(path.Join(directory, "shared"))
+	}
+
+	info(fmt.Sprintf("Initialized new workshop in %s", directory))
+	return nil
+}
+
+//Create a target directory based on the branches from the current directory or argument passed
+func assembleBranches(c *cli.Context) error {
+	sourceDir := defaultOrFirstArg(".", c)
+	sharedDir := path.Join(sourceDir, "shared")
+
+	targetDirectory := createTargetDirectory()
+
+	branches := getDirectories(path.Join(sourceDir, "branches"))
+
+	if (len(branches) > 0) {
+		for _, branch := range branches {
+			CopyDir(sharedDir, path.Join(targetDirectory, branch.Name()))
+			CopyDir(path.Join(sourceDir, "branches", branch.Name()), path.Join(targetDirectory, branch.Name()))
+		}
+	} else {
+		return cli.NewExitError(fmt.Sprintf("No branches found in %s", sourceDir), 1)
+	}
+	info(fmt.Sprintf("Assembled %d branches in %s", len(branches), targetDirectory))
+	return nil
+}
+
 //Create branches based on the folders in ./target
 func createBranches(c *cli.Context) error {
 	assemblyDir := "target"
@@ -95,27 +129,6 @@ func executeCommand(command string,arguments...string){
 	exec.Command(command, arguments...).Output()
 }
 
-//Create a target directory based on the branches from the current directory or argument passed
-func assembleBranches(c *cli.Context) error {
-	sourceDir := defaultOrFirstArg(".", c)
-	sharedDir := path.Join(sourceDir, "shared")
-
-	targetDirectory := createTargetDirectory()
-
-	branches := getDirectories(path.Join(sourceDir, "branches"))
-
-	if (len(branches) > 0) {
-		for _, branch := range branches {
-			CopyDir(sharedDir, path.Join(targetDirectory, branch.Name()))
-			CopyDir(path.Join(sourceDir, "branches", branch.Name()), path.Join(targetDirectory, branch.Name()))
-		}
-	} else {
-		return cli.NewExitError(fmt.Sprintf("No branches found in %s", sourceDir), 1)
-	}
-	info(fmt.Sprintf("Assembled %d branches in %s", len(branches), targetDirectory))
-	return nil
-}
-
 //Cleans and recreates the target directory
 func createTargetDirectory() string {
 	targetDirectory := "target"
@@ -140,23 +153,6 @@ func getDirectories(folder string) []os.FileInfo {
 		}
 	}
 	return directories
-}
-
-//Initialize a new workshop directory with optional shared directory
-func doInit(c *cli.Context) error {
-	directory := defaultOrFirstArg(".", c)
-	initDirectory(directory)
-	if (c.BoolT("shared-dir")) {
-		createDirectory(path.Join(directory, "shared"))
-	}
-	info(fmt.Sprintf("Initialized new workshop in %s", directory))
-	return nil
-}
-
-//Create directory and inside a branches directory
-func initDirectory(directory string) {
-	createDirectory(directory)
-	createDirectory(path.Join(directory, "branches"))
 }
 
 //Create a directory
