@@ -108,10 +108,12 @@ func createBranches(c *cli.Context) error {
 			executeCommand("git","branch","-D",branch.Name())
 			executeCommand("git","checkout","--orphan",branch.Name())
 			executeCommand("git","rm","-rf",".")
+			removeDirectory("branches")
+			removeDirectory("shared")
 			CopyDir(path.Join(assemblyDir,branch.Name()), ".")
 			executeCommand("git","add","--all")
 			executeCommand("git","reset",assemblyDir)
-			executeCommand("git","commit","-am","Created branch")
+			executeCommand("git","commit","-m","Created branch")
 			executeCommand("git","checkout","master")
 		}
 	} else {
