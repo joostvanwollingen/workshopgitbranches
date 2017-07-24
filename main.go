@@ -15,7 +15,7 @@ import (
 func main() {
 	app := cli.NewApp()
 	app.Name = "WorkshopGitBranches"
-	app.Version = "1.0"
+	app.Version = "1.0.0"
 	app.HelpName = "workshopgitbranches"
 	app.Usage = "create GIT repositories with branches for each assignment in a workshop"
 	app.Authors = []cli.Author{
