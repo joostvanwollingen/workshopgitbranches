@@ -13,6 +13,8 @@ NOTE: There are no tests for the code (yet), so use at your own risk.
 3. Run `go install` in the workshopgitbranches folder
 4. Run `workshopgitbranches -v` to check if everything is setup correctly.
 
+Or just grab a binary from the [releases](https://github.com/joostvanwollingen/workshopgitbranches/releases).
+
 ## Usage
 
 *__workshopgitbranches assumes you do every operation on master for now. Don't use it from other branches.__*
